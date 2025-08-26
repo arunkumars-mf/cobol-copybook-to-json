@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="cobol-copybook-to-json",
-    version="1.0.0",
+    version="1.1.0",
     author="Arunkumar Selvam",  # Replace with your name
     author_email="aruninfy123@gmail.com",  # Replace with your email
     description="Convert COBOL copybooks to JSON schema format",

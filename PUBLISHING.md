@@ -107,4 +107,22 @@ To release a new version:
 - Package name: `cobol-copybook-to-json`
 - Command-line tool: `cobol-to-json`
 - Python import: `cobol_copybook_to_json`
-- Current version: 1.0.0
+- Current version: 1.1.0
+
+## Recent Changes (v1.1.0)
+
+### Major Features Added:
+- **Multiple 01-level record support**: Now handles copybooks with multiple 01-level records
+- **Consistent API**: Uses `recordLayouts` array for both single and multiple records  
+- **Auto-generation**: Creates root record when no 01-level found with warning message
+- **Accurate field counting**: Recursive counting of all fields including nested ones
+
+### API Changes:
+- Changed from `record` to `recordLayouts` array structure
+- Removed redundant `recordCount` from metadata
+- Enhanced field counting accuracy
+
+### Files Modified:
+- `src/cobol_copybook_to_json/__init__.py` - Main converter logic
+- `setup.py` - Version bumped to 1.1.0
+- `CHANGELOG.md` - Added v1.1.0 release notes

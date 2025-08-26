@@ -163,7 +163,11 @@ def parse_fields(lines: List[str], parent_level: int, start_offset: int, parent_
         if not field:
             i += 1
             continue
-        if field.level <= parent_level:
+        # For 01 level processing, don't break on same level - collect all 01 levels
+        if parent_level == 0 and field.level == 1:
+            # This is a top-level 01 record, process it
+            pass
+        elif field.level <= parent_level:
             break
             
         # Skip 88, 66, and 77 levels
@@ -409,6 +413,49 @@ def comp3_size(precision: int) -> int:
         int: Size in bytes.
     """
     return max(1, (precision + 2) // 2)
+def create_elementary_record_schema(field: Field) -> Dict[str, Any]:
+    """
+    Create JSON schema for an elementary 01-level field.
+
+    Args:
+        field (Field): Elementary field to create schema for.
+
+    Returns:
+        Dict[str, Any]: JSON schema as a dictionary
+    """
+    field_schema = {
+        "type": field.type,
+        "name": field.name.rstrip('.'),
+        "recordType": "fixed",
+        "maxLength": field.max_length
+    }
+
+    if field.picture:
+        field_schema["picture"] = field.picture.rstrip('.')
+    if field.precision > 0:
+        field_schema["precision"] = field.precision
+    if field.scale > 0 or (field.type == "number" and field.precision > 0):
+        field_schema["scale"] = field.scale
+    if field.usage and field.usage != "DISPLAY":
+        field_schema["usage"] = field.usage
+
+    if field.occurs:
+        field_schema["occurs"] = {
+            "min": field.occurs.min,
+            "max": field.occurs.max
+        }
+        if field.occurs.depending_on:
+            field_schema["occurs"]["dependingOn"] = field.occurs.depending_on
+
+    if field.redefines:
+        field_schema["redefines"] = field.redefines
+    if field.signed:
+        field_schema["signed"] = True
+
+    field_schema["offset"] = field.offset
+
+    return field_schema
+
 def create_json_schema(root_field: Field) -> Dict[str, Any]:
     """
     Create the JSON schema representation of the COBOL structure.
@@ -499,6 +546,23 @@ def clean_schema(schema_obj):
         for item in schema_obj:
             if isinstance(item, (dict, list)):
                 clean_schema(item)
+def count_all_fields(fields: List[Field]) -> int:
+    """
+    Recursively count all fields including nested ones.
+    
+    Args:
+        fields (List[Field]): List of fields to count.
+    
+    Returns:
+        int: Total count of all fields.
+    """
+    count = 0
+    for field in fields:
+        count += 1
+        if field.is_group and field.children:
+            count += count_all_fields(field.children)
+    return count
+
 def convert_copybook_to_json(
     copybook_content: Union[str, List[str]],
     copybook_name: str = "copybook.cpy",
@@ -508,6 +572,7 @@ def convert_copybook_to_json(
     Convert COBOL copybook to JSON schema format.
 
     Handles groups, elementary items, OCCURS clauses, REDEFINES, and different USAGE types.
+    Fixed to properly handle multiple 01-level records.
 
     Args:
         copybook_content: COBOL copybook content as string or list of strings
@@ -539,13 +604,16 @@ def convert_copybook_to_json(
         lines = cleaned_copybook.split('\n')
         fields, _, min_length, max_length = parse_fields(lines, 0, 0, "")
 
-        root_field = next((field for field in fields if field.level == 1), None)
-        if not root_field:
-            # No 01 level found, create one with a generic name
-            root_name = "GENERATED-LEVEL-01"
+        # Find all 01-level records
+        level_01_fields = [field for field in fields if field.level == 1]
+        
+        if not level_01_fields:
+            # No 01 level found, create one with a generic name based on file name
+            base_name = os.path.splitext(os.path.basename(copybook_name))[0].upper().replace('-', '_')
+            root_name = f"{base_name}_RECORD" if base_name else "GENERATED_RECORD"
 
             if DEBUG:
-                print(f"No 01 level found. Creating root level with name: {root_name}")
+                print(f"Warning: No 01 level found. Creating root level with name: {root_name}")
 
             # Create a new root field
             root_field = Field()
@@ -553,26 +621,66 @@ def convert_copybook_to_json(
             root_field.level = 1
             root_field.is_group = True
             root_field.children = fields
+            root_field.min_length = min_length
+            root_field.max_length = max_length
             
             # Adjust the level numbers of all existing fields
             for field in fields:
                 field.level += 1
 
-        root_field.min_length = min_length
-        root_field.max_length = max_length
+            # Create the JSON schema with warning
+            record_schema = create_json_schema(root_field)
+            
+            json_schema = {
+                "metadata": {
+                    "version": "1.0",
+                    "generatedAt": datetime.datetime.now().isoformat(),
+                    "sourceFile": copybook_name,
+                    "message": f"No 01-level record found. Generated '{root_name}' as root record."
+                },
+                "recordLayouts": [record_schema]
+            }
+        elif len(level_01_fields) == 1:
+            # Single 01-level record
+            root_field = level_01_fields[0]
+            root_field.min_length = min_length
+            root_field.max_length = max_length
 
-        # Create the JSON schema
-        record_schema = create_json_schema(root_field)
+            # Create the JSON schema
+            if root_field.is_group:
+                record_schema = create_json_schema(root_field)
+            else:
+                record_schema = create_elementary_record_schema(root_field)
 
-        # Create the final schema with metadata
-        json_schema = {
-            "metadata": {
-                "version": "1.0",
-                "generatedAt": datetime.datetime.now().isoformat(),
-                "sourceFile": copybook_name
-            },
-            "record": record_schema
-        }
+            # Create the final schema with metadata - use recordLayouts for consistency
+            json_schema = {
+                "metadata": {
+                    "version": "1.0",
+                    "generatedAt": datetime.datetime.now().isoformat(),
+                    "sourceFile": copybook_name
+                },
+                "recordLayouts": [record_schema]
+            }
+        else:
+            # Multiple 01-level records - create a schema with multiple record definitions
+            record_schemas = []
+            for field in level_01_fields:
+                if field.is_group:
+                    # Group item - use existing schema creation
+                    record_schema = create_json_schema(field)
+                else:
+                    # Elementary item - create field schema directly
+                    record_schema = create_elementary_record_schema(field)
+                record_schemas.append(record_schema)
+
+            json_schema = {
+                "metadata": {
+                    "version": "1.0",
+                    "generatedAt": datetime.datetime.now().isoformat(),
+                    "sourceFile": copybook_name
+                },
+                "recordLayouts": record_schemas
+            }
 
         # Clean the schema before output
         clean_schema(json_schema)
@@ -584,7 +692,7 @@ def convert_copybook_to_json(
             "status": "success",
             "copybook_name": copybook_name,
             "record_size": max_length,
-            "field_count": len(fields),
+            "field_count": count_all_fields(fields),
             "schema": json_schema,
             "json_string": json_string
         }
