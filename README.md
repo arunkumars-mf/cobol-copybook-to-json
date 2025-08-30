@@ -248,16 +248,16 @@ If you use this software in your research or project, please cite it as:
   author = {Selvam, Arunkumar},
   title = {COBOL Copybook to JSON Schema Converter},
   url = {https://github.com/arunkumars-mf/cobol-copybook-to-json},
-  version = {1.1.0},
+  version = {1.1.1},
   year = {2024}
 }
 ```
 
 **APA Style:**
-Selvam, A. (2024). COBOL Copybook to JSON Schema Converter (Version 1.1.0) [Computer software]. https://github.com/arunkumars-mf/cobol-copybook-to-json
+Selvam, A. (2024). COBOL Copybook to JSON Schema Converter (Version 1.1.1) [Computer software]. https://github.com/arunkumars-mf/cobol-copybook-to-json
 
 **IEEE Style:**
-A. Selvam (IEEE Member), "COBOL Copybook to JSON Schema Converter," Version 1.1.0, 2024. [Online]. Available: https://github.com/arunkumars-mf/cobol-copybook-to-json
+A. Selvam (IEEE Member), "COBOL Copybook to JSON Schema Converter," Version 1.1.1, 2024. [Online]. Available: https://github.com/arunkumars-mf/cobol-copybook-to-json
 
 ## License
 
