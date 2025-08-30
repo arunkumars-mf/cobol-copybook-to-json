@@ -31,6 +31,7 @@ keywords = ["cobol", "copybook", "json", "schema", "converter", "mainframe"]
 Homepage = "https://github.com/arunkumars-mf/cobol-copybook-to-json"
 "Bug Reports" = "https://github.com/arunkumars-mf/cobol-copybook-to-json/issues"
 "Source" = "https://github.com/arunkumars-mf/cobol-copybook-to-json"
+"Citation" = "https://github.com/arunkumars-mf/cobol-copybook-to-json/blob/main/CITATION.cff"
 
 [project.scripts]
 cobol-to-json = "cobol_copybook_to_json:main"

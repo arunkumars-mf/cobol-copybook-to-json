@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+  - family-names: "Selvam"
+    given-names: "Arunkumar"
+    email: "aruninfy123@gmail.com"
+    orcid: "https://orcid.org/0009-0006-2050-5569"
+    affiliation: "IEEE Member"
+title: "COBOL Copybook to JSON Schema Converter"
+version: "1.1.0"
+date-released: "2024-08-26"
+url: "https://github.com/arunkumars-mf/cobol-copybook-to-json"
+repository-code: "https://github.com/arunkumars-mf/cobol-copybook-to-json"
+abstract: "A Python utility that converts COBOL copybooks to JSON schema format for mainframe modernization projects and data integration scenarios"
+keywords:
+  - cobol
+  - copybook
+  - json
+  - schema
+  - converter
+  - mainframe
+license: MIT

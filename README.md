@@ -1,5 +1,10 @@
 # COBOL Copybook to JSON Schema Converter
 
+[![PyPI version](https://img.shields.io/pypi/v/cobol-copybook-to-json.svg)](https://pypi.org/project/cobol-copybook-to-json/)
+[![PyPI Downloads](https://static.pepy.tech/personalized-badge/cobol-copybook-to-json?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/cobol-copybook-to-json)
+[![Python versions](https://img.shields.io/pypi/pyversions/cobol-copybook-to-json.svg)](https://pypi.org/project/cobol-copybook-to-json/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A Python utility that converts COBOL copybooks to JSON schema format. This tool is particularly useful for mainframe modernization projects and data integration scenarios where you need to understand and work with COBOL data structures in modern applications.
 
 ## Features
@@ -233,6 +238,26 @@ Dictionary with the following keys:
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Citation
+
+If you use this software in your research or project, please cite it as:
+
+```bibtex
+@software{selvam_cobol_copybook_to_json_2024,
+  author = {Selvam, Arunkumar},
+  title = {COBOL Copybook to JSON Schema Converter},
+  url = {https://github.com/arunkumars-mf/cobol-copybook-to-json},
+  version = {1.1.0},
+  year = {2024}
+}
+```
+
+**APA Style:**
+Selvam, A. (2024). COBOL Copybook to JSON Schema Converter (Version 1.1.0) [Computer software]. https://github.com/arunkumars-mf/cobol-copybook-to-json
+
+**IEEE Style:**
+A. Selvam (IEEE Member), "COBOL Copybook to JSON Schema Converter," Version 1.1.0, 2024. [Online]. Available: https://github.com/arunkumars-mf/cobol-copybook-to-json
 
 ## License
 
